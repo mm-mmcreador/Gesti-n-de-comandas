@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Co</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+        .ticket a {
+            text-decoration: none;
+            color: inherit;
+            color: blue;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .ticket {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .ticket:hover {
+            transform: scale(1.02);
+        }
+
+        .pendiente {
+            background-color: #ffeeba;
+        }
+
+        .entregado {
+            background-color: #d4edda;
+        }
+
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:first-of-type {
+            background-color: #007bff;
+            color: white;
+        }
+
+        button:last-of-type {
+            background-color: #28a745;
+            color: white;
+        }
+
+        button.delete-all {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        img {
+            max-width: 100px;
+            max-height: 100px;
+            display: block;
+            margin: 10px 0;
+        }
+
+        /* Estilos del modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 80%;
+            max-height: 80%;
+            text-align: center;
+        }
+
+        .modal img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            color: black;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: red;
+            text-decoration: none;
+            cursor: pointer;
+        }
+/* Estilos para el resultado de búsqueda */
+#resultado-busqueda {
+    font-family: Arial, sans-serif;
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.resultado-ticket h3 {
+    margin-top: 20px;
+    color: #333;
+    border-bottom: 2px solid #000;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+.resultado-ticket p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.resultado-ticket ul {
+    margin: 10px 0 20px 20px;
+    padding: 0;
+    list-style-type: disc;
+    font-size: 14px;
+    color: #333;
+}
+
+.resultado-ticket ul li {
+    margin-bottom: 5px;
+}
+
+.resultado-ticket ul li ul {
+    list-style-type: circle;
+    margin-left: 20px;
+}
+
+.resultado-ticket ul li ul li {
+    font-size: 13px;
+    color: #666;
+}
+
+/* Estilo para los totales */
+.resultado-ticket strong {
+    color: #000;
+    font-weight: bold;
+}
+
+/* Separación visual para secciones */
+.resultado-ticket h3:nth-child(odd) {
+    color: #007BFF;
+}
+
+.resultado-ticket h3:nth-child(even) {
+    color: #28A745;
+}
+/* Contenedor del buscador */
+#buscador-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+/* Estilo del input */
+#buscador {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+}
+
+/* Efecto al enfocarse en el input */
+#buscador:focus {
+    outline: none;
+    border-color: #007BFF;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+}
+.superconteiner{
+ padding: 40px;
+ 
+text-align: center;
+}
+/* Estilo del botón */
+
+
+    </style>
+</head>
+<body>
+ <div class="superconteiner">
+  
+
+    <h1>Gestión de Pedidos</h1>
+    <button onclick="correr()">Obtener Pedidos</button>
+    <button class="delete-all" onclick="eliminarTodosLosPedidos()">Eliminar Todos los Pedidos</button>
+<div>
+    <input type="text" id="buscador" placeholder="Buscar por nombre de cliente" oninput="buscarPorCliente()" />
+</div>
+    <!-- Radio Button para controlar la ejecución de correr() -->
+    <label for="ejecutar-correr">recargar</label><br>
+<input type="radio" id="ejecutar-correr" name="correr" value="on"> Encendido
+<input type="radio" id="no-ejecutar-correr" name="correr" value="off" checked> Apagado
+
+    <br>
+</div>
+<div id="resultado-busqueda"></div>
+
+
+
+    <h2>Pendientes</h2>
+    <div class="container" id="pendientes"></div>
+
+    <h2>Entregados</h2>
+    <div class="container" id="entregados"></div>
+
+    <!-- Modal para la imagen -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal()">&times;</span>
+            <img id="modal-img" src="" alt="Imagen del ítem">
+        </div>
+    </div>
+
+ 
+
+    <script>
+        const manifest = {
+    "name": "COMANDAS",
+    "short_name": "COMANDAS",
+    "description": "COMANDAS de LA TALEGONA",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#000000",
+    "icons": [
+        {
+            "src": "https://res.cloudinary.com/dedltkiwa/image/upload/v1731940067/LogoMaker-1731940009387_nriork.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "https://res.cloudinary.com/dedltkiwa/image/upload/v1731940067/LogoMaker-1731940009387_nriork.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+};
+
+        // Crear un Blob a partir del JSON y generar una URL para el "manifest"
+        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        const manifestURL = URL.createObjectURL(blob);
+
+        // Crear el link y añadirlo al head
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestURL;
+        document.head.appendChild(link);
+
+        const urlAppScript = "https://script.google.com/macros/s/AKfycbzpgqa4EprWyJ5T7a3CP8cHHhPI9FUaKXaNBHCvXyw25uKiWkLh04R-IZtUmu3Zw3o3/exec";
+
+        async function obtenerPedidos() {
+            const formData = new FormData();
+            formData.append("operacion", "obtenerPedidos");
+
+            try {
+                const response = await fetch(urlAppScript, {
+                    method: "POST",
+                    body: formData
+                });
+                const data = await response.json();
+
+                const pedidosLocales = JSON.parse(localStorage.getItem("pedidos")) || [];
+
+                const pedidosActualizados = data.map(pedido => {
+                    const pedidoExistente = pedidosLocales.find(p => p.folio === pedido.folio);
+                    return pedidoExistente || { ...pedido, entregado: false };
+                });
+
+                localStorage.setItem("pedidos", JSON.stringify(pedidosActualizados));
+            } catch (error) {
+                console.error("Error al obtener los pedidos:", error);
+            }
+        }
+
+        function mostrarPedidos() {
+    const pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+    const pendientesDiv = document.getElementById("pendientes");
+    const entregadosDiv = document.getElementById("entregados");
+
+    pendientesDiv.innerHTML = "";
+    entregadosDiv.innerHTML = "";
+
+    pedidos.forEach((pedido, index) => {
+        const ticket = document.createElement("div");
+        ticket.classList.add("ticket");
+
+        // Condicional para mostrar recibido y cambio solo si el pago es en efectivo
+        const pagoEfectivoHTML = pedido.metodoPago === "Efectivo" 
+            ? `
+                <p><strong>Recibido:</strong> $${pedido.pedido.pagoEfectivo}</p>
+                <p><strong>Cambio:</strong> $${pedido.pedido.cambio}</p>
+            ` 
+            : "";
+
+        ticket.innerHTML = `
+            <p><strong>Folio:</strong> ${pedido.folio}</p>
+            <p><strong>Fecha:</strong> ${new Date(pedido.fecha).toLocaleString()}</p>
+            <p><strong>Cliente:</strong> ${pedido.cliente}</p>
+            <p><strong>Método de Pago:</strong> ${pedido.metodoPago}</p>
+            <p><strong>Total:</strong> $${pedido.pedido.total}</p>
+            ${pagoEfectivoHTML}
+            <p><strong>Items:</strong></p>
+            <ul>
+                ${pedido.pedido.items.map(item => `
+                    <li>
+                        (${item.cantidad})
+                        <strong><a href="javascript:void(0);" onclick="mostrarImagen('${item.imagen}')">${item.nombre}</a></strong> - $${item.precio}
+                        <ul>
+                            <li><strong>Descartados:</strong> ${item.descartados.length ? item.descartados.join(", ") : "Ninguno"}</li>
+                            <li><strong>Extras:</strong> ${item.ingredientesExtras.length ? item.ingredientesExtras.join(", ") : "Ninguno"}</li>
+                        </ul>
+                    </li>
+                `).join("")}
+            </ul>
+            ${pedido.entregado 
+                ? `<button onclick="marcarPendiente(${index})">Marcar como Pendiente</button>` 
+                : `<button onclick="marcarEntregado(${index})">Marcar como Entregado</button>`}
+        `;
+
+        if (pedido.entregado) {
+            ticket.classList.add("entregado");
+            entregadosDiv.appendChild(ticket);
+        } else {
+            ticket.classList.add("pendiente");
+            pendientesDiv.appendChild(ticket);
+        }
+    });
+}
+
+function buscarPorCliente() {
+    const nombreCliente = document.getElementById("buscador").value.trim().toLowerCase();
+    const resultadoDiv = document.getElementById("resultado-busqueda");
+
+    // Limpiar resultados si el input está vacío
+    if (!nombreCliente) {
+        resultadoDiv.innerHTML = "<p>Por favor, introduce un nombre para buscar.</p>";
+        return;
+    }
+
+    const pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+
+    // Filtrar los pedidos por nombre del cliente
+    const pedidosCliente = pedidos.filter(pedido => 
+        pedido.cliente && pedido.cliente.toLowerCase().includes(nombreCliente)
+    );
+
+    // Separar pedidos pagados y pendientes
+    const pagados = pedidosCliente.filter(pedido => pedido.metodoPago === "Efectivo" || pedido.pagado);
+    const pendientes = pedidosCliente.filter(pedido => pedido.metodoPago !== "Efectivo" && !pedido.pagado);
+
+    // Calcular totales
+    const totalPagado = pagados.reduce((total, pedido) => total + parseFloat(pedido.pedido.total), 0);
+    const totalPendiente = pendientes.reduce((total, pedido) => total + parseFloat(pedido.pedido.total), 0);
+
+    // Mostrar los resultados
+    mostrarResultadoBusqueda({
+        cliente: nombreCliente || "Desconocido",
+        pagados,
+        pendientes,
+        totalPagado,
+        totalPendiente
+    });
+}
+
+function mostrarResultadoBusqueda(resultado) {
+    const resultadoDiv = document.getElementById("resultado-busqueda");
+
+    if (!resultado.pagados.length && !resultado.pendientes.length) {
+        resultadoDiv.innerHTML = "<p>No se encontraron pedidos para este cliente.</p>";
+        return;
+    }
+
+    resultadoDiv.innerHTML = `
+        <div class="resultado-ticket">
+            <p><strong>Cliente:</strong> ${resultado.cliente}</p>
+            
+            <h3>Pagado</h3>
+            <p><strong>Total Pagado:</strong> $${resultado.totalPagado.toFixed(2)}</p>
+            <ul>
+                ${resultado.pagados.map(pedido => `
+                    <li>
+                        Folio: ${pedido.folio} - $${pedido.pedido.total}
+                        <ul>
+                            ${pedido.pedido.items.map(item => `
+                                <li>(${item.cantidad}) ${item.nombre} - $${item.precio}</li>
+                            `).join("")}
+                        </ul>
+                    </li>
+                `).join("")}
+            </ul>
+
+            <h3>Pendiente</h3>
+            <p><strong>Total Pendiente:</strong> $${resultado.totalPendiente.toFixed(2)}</p>
+            <ul>
+                ${resultado.pendientes.map(pedido => `
+                    <li>
+                        Folio: ${pedido.folio} - $${pedido.pedido.total}
+                        <ul>
+                            ${pedido.pedido.items.map(item => `
+                                <li>(${item.cantidad}) ${item.nombre} - $${item.precio}</li>
+                            `).join("")}
+                        </ul>
+                    </li>
+                `).join("")}
+            </ul>
+        </div>
+        <button onclick="cerrarCuenta('${resultado.cliente}')">Cerrar Cuenta</button>
+        <button onclick="abrirCuenta('${resultado.cliente}')">Abrir Cuenta</button>
+    `;
+}
+
+function cerrarCuenta(cliente) {
+    const pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+    const clienteLower = cliente.toLowerCase();
+
+    // Actualizar los pedidos correspondientes
+    const pedidosActualizados = pedidos.map(pedido => {
+        if (pedido.cliente && pedido.cliente.toLowerCase().includes(clienteLower)) {
+            return { ...pedido, pagado: true }; // Marcar como cerrado
+        }
+        return pedido;
+    });
+
+    // Guardar los pedidos actualizados en localStorage
+    localStorage.setItem("pedidos", JSON.stringify(pedidosActualizados));
+
+    // Actualizar la vista
+    alert(`La cuenta de ${cliente} se ha cerrado.`);
+    buscarPorCliente(); // Volver a mostrar los resultados actualizados
+    mostrarPedidos(); // Actualizar la lista general
+}
+
+function abrirCuenta(cliente) {
+    const pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+    const clienteLower = cliente.toLowerCase();
+
+    // Actualizar los pedidos correspondientes
+    const pedidosActualizados = pedidos.map(pedido => {
+        if (pedido.cliente && pedido.cliente.toLowerCase().includes(clienteLower)) {
+            return { ...pedido, pagado: false }; // Marcar como abierto
+        }
+        return pedido;
+    });
+
+    // Guardar los pedidos actualizados en localStorage
+    localStorage.setItem("pedidos", JSON.stringify(pedidosActualizados));
+
+    // Actualizar la vista
+    alert(`La cuenta de ${cliente} se ha abierto nuevamente.`);
+    buscarPorCliente(); // Volver a mostrar los resultados actualizados
+    mostrarPedidos(); // Actualizar la lista general
+}
+
+
+
+
+
+
+
+        function marcarEntregado(index) {
+            const pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+            if (pedidos[index]) {
+                pedidos[index].entregado = true;
+                localStorage.setItem("pedidos", JSON.stringify(pedidos));
+                mostrarPedidos();
+
+                // Verificar si el radio está encendido
+                const ejecutarCorrer = document.getElementById("ejecutar-correr").checked;
+                if (ejecutarCorrer) {
+                    correr();
+                }
+            }
+        }
+
+        function marcarPendiente(index) {
+            const pedidos = JSON.parse(localStorage.getItem("pedidos")) || [];
+            if (pedidos[index]) {
+                pedidos[index].entregado = false;
+                localStorage.setItem("pedidos", JSON.stringify(pedidos));
+                mostrarPedidos();
+            }
+        }
+
+        function mostrarImagen(imagenUrl) {
+            const modal = document.getElementById("modal");
+            const modalImg = document.getElementById("modal-img");
+            modalImg.src = imagenUrl;
+            modal.style.display = "flex";
+        }
+
+        function cerrarModal() {
+            const modal = document.getElementById("modal");
+            modal.style.display = "none";
+        }
+
+        // Cerrar modal si el usuario hace clic fuera de la imagen
+        window.onclick = function(event) {
+            const modal = document.getElementById("modal");
+            if (event.target === modal) {
+                cerrarModal();
+            }
+        }
+
+        function eliminarTodosLosPedidos() {
+            // Eliminar todos los pedidos del localStorage
+            localStorage.removeItem("pedidos");
+            correr();
+        }
+
+        async function correr() {
+            await obtenerPedidos(); // Esperar a que se complete obtenerPedidos
+            mostrarPedidos();       // Mostrar los pedidos solo después
+        }
+
+        mostrarPedidos();
+    </script>
+</body>
+
+    
+
+        
+    </script>
+</body>
+</html>
